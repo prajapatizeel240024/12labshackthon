@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Search Debug</title>
+</head>
+<body>
+    <h1>Video Search Debug Tool</h1>
+    
+    <div id="debug-info"></div>
+    
+    <script>
+        function checkVideoSearch() {
+            const debugDiv = document.getElementById('debug-info');
+            
+            // Check localStorage
+            const indexId = localStorage.getItem('twelvelabs_index_id');
+            const videos = localStorage.getItem('uploaded_videos');
+            
+            let html = '<h2>Current Status:</h2>';
+            html += `<p><strong>Index ID:</strong> ${indexId || 'NOT FOUND'}</p>`;
+            
+            if (videos) {
+                try {
+                    const videoList = JSON.parse(videos);
+                    html += `<p><strong>Number of videos:</strong> ${videoList.length}</p>`;
+                    html += '<h3>Videos:</h3><ul>';
+                    videoList.forEach((video, index) => {
+                        html += `<li>${index + 1}. ${video.title} - Status: ${video.status}</li>`;
+                    });
+                    html += '</ul>';
+                } catch (e) {
+                    html += `<p><strong>Videos data:</strong> Invalid JSON</p>`;
+                }
+            } else {
+                html += '<p><strong>Videos:</strong> NOT FOUND</p>';
+            }
+            
+            // Test API key
+            fetch('./src/env.json')
+                .then(response => response.json())
+                .then(env => {
+                    html += `<p><strong>API Key:</strong> ${env.TwLabs ? 'FOUND' : 'NOT FOUND'}</p>`;
+                    debugDiv.innerHTML = html;
+                })
+                .catch(e => {
+                    html += `<p><strong>API Key:</strong> ERROR LOADING</p>`;
+                    debugDiv.innerHTML = html;
+                });
+        }
+        
+        // Run check when page loads
+        checkVideoSearch();
+    </script>
+</body>
+</html>
